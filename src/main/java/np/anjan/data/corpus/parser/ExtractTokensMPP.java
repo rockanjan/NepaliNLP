@@ -1,28 +1,22 @@
 
 package np.anjan.data.corpus.parser;
 
-import java.io.BufferedReader;
 import java.io.File;
-import java.io.FileInputStream;
-import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
-import java.io.InputStreamReader;
-import java.io.OutputStream;
 import java.io.OutputStreamWriter;
 import java.io.PrintWriter;
-import java.io.UnsupportedEncodingException;
 import java.util.Date;
 import java.util.List;
 import java.util.Stack;
 
 import np.anjan.config.Config;
-import np.anjan.data.corpus.Corpus;
-import np.anjan.data.corpus.Paragraph;
-import np.anjan.data.corpus.Text;
 
 public class ExtractTokensMPP {
+	public static boolean includePosLabel = false;
 	public static void main(String[] args) throws IOException {
+		String outFile = Config.FOLDER_PROCESSED_POS_DATA + "corpus_clean.txt";
+		
 		Date startTime = new Date();
 		System.out.println("Start Time = " + startTime);
 		//Config.FOLDER_POS_DATA = "/data/nepalicorpus/mpp/gc/webtext/m-1asphost-com-jhapalidotcom/";
@@ -39,20 +33,24 @@ public class ExtractTokensMPP {
 			System.out.println("Saving at /tmp");
 			Config.FOLDER_PROCESSED_POS_DATA = "/tmp/";
 		}
-		String outFile = Config.FOLDER_PROCESSED_POS_DATA + "corpus_clean.pos.txt";
 		PrintWriter pw = new PrintWriter(new OutputStreamWriter(new FileOutputStream(outFile), "UTF-8"));
 		while(! folderList.isEmpty() ) {
 			File currentFolder = folderList.pop();
 			File[] arrayFiles = currentFolder.listFiles();
+			if(arrayFiles == null) {
+				System.out.println("folder gave null : " + currentFolder.getAbsolutePath());
+			}
 			for (int i = 0; i < arrayFiles.length; i++) {
 				if (arrayFiles[i].isFile()) {
-					String file = arrayFiles[i].getAbsolutePath();
-					System.out.println("Parsing file " + i + " " + file);
-					fileCount++;
-					TokenParserMPP parser = new TokenParserMPP();
-					List<String> sentenceList = parser.readConfig(file);
-					for(String sentence : sentenceList) {
-						pw.println(sentence);
+					if(arrayFiles[i].getName().endsWith(".xml")) {
+						String file = arrayFiles[i].getAbsolutePath();
+						System.out.println("Parsing file " + i + " " + file);
+						fileCount++;
+						TokenParserMPP parser = new TokenParserMPP();
+						List<String> sentenceList = parser.readConfig(file);
+						for(String sentence : sentenceList) {
+							pw.println(sentence);
+						}
 					}
 				} else {
 					if(! arrayFiles[i].getName().equals(".") && !arrayFiles[i].getName().equals("..")) { 
@@ -67,7 +65,7 @@ public class ExtractTokensMPP {
 		Date endTime = new Date();
 		System.out.println("EndTime = " + endTime);
 		System.out.println("Total Time taken : "
-				+ ((endTime.getTime() - startTime.getTime()) / 1000 / 60)
+				+ (1.0 * (endTime.getTime() - startTime.getTime()) / 1000 / 60)
 				+ " minutes");
 	}	
 }
