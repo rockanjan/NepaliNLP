@@ -59,6 +59,7 @@ public class ExtractTokensMPP {
 				}
 			}
 		}
+		System.out.println("Total tokens : " + TokenParserMPP.totalTokens);
 		System.out.println(fileCount + " files read.");
 		pw.close();
 		System.out.println("File written at : " + outFile);

@@ -16,6 +16,7 @@ import javax.xml.stream.events.StartElement;
 import javax.xml.stream.events.XMLEvent;
 
 public class TokenParserMPP {
+	static int totalTokens = 0;
 	@SuppressWarnings({ "unchecked", "null" })
 	public List<String> readConfig(String configFile) {
 		List<String> sentenceList = new ArrayList<String>();
@@ -42,6 +43,7 @@ public class TokenParserMPP {
 						if (event.asStartElement().getName().getLocalPart().equalsIgnoreCase("w")) {
 							event = eventReader.nextEvent();
 							sentenceBuffer.append(event.asCharacters().getData() + " ");
+							totalTokens++;
 							if(ExtractTokensMPP.includePosLabel) {
 								Iterator<Attribute> attributes = startElement.getAttributes();
 								while (attributes.hasNext()) {
