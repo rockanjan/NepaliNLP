@@ -13,10 +13,9 @@ import java.util.Stack;
 import np.anjan.config.Config;
 
 public class ExtractTokensMPP {
-	public static boolean includePosLabel = false;
+	public static boolean includePosLabel = true;
 	public static void main(String[] args) throws IOException {
-		String outFile = Config.FOLDER_PROCESSED_POS_DATA + "corpus_clean.txt";
-		
+		String outFile = Config.FOLDER_PROCESSED_POS_DATA + "clean_corpus.new";
 		Date startTime = new Date();
 		System.out.println("Start Time = " + startTime);
 		//Config.FOLDER_POS_DATA = "/data/nepalicorpus/mpp/gc/webtext/m-1asphost-com-jhapalidotcom/";
