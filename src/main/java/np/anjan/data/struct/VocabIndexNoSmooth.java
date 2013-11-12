@@ -21,7 +21,10 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 public class VocabIndexNoSmooth {
-
+	/*
+	 * No number normalization
+	 */
+	
 	/*
 	 * Reads file to create feature. Converts the words into integer indices
 	 */
