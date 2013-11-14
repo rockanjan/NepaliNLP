@@ -9,13 +9,13 @@ public class GenerateBaselineTemplateForCRF {
 		StringBuffer content = new StringBuffer();
 		int featureIndex = 0;
 		//words in context
-		for(int i=-2; i<=2; i++) {
+		for(int i=-3; i<=3; i++) {
 			content.append(String.format("U%d:%%x[%d,0]\n", featureIndex, i));
 			featureIndex++;
 		}
 		
 		//bigrams
-		for(int i=-1; i<=0; i++) {
+		for(int i=-2; i<=1; i++) {
 			content.append(String.format("U%d:%%x[%d,0]/%%x[%d,0]\n", featureIndex, i, i+1));
 			featureIndex++;
 		}

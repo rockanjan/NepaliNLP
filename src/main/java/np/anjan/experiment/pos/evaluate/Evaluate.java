@@ -17,6 +17,9 @@ import java.util.Set;
 
 public class Evaluate {
 	public static void main(String[] args) throws IOException {
+		int GOLD_COL = 3; //third col
+		int PRED_COL = 2; //third col
+		
 		int UNKNOWN_COL = 1; //first column
 		String UNKNOWN = "0";
 		//input file with last column pred and second to last gold tags
@@ -24,7 +27,8 @@ public class Evaluate {
 			System.err.println("Usage: <program> goldPredFile");
 			System.exit(-1);
 		}
-		String inputFile = args[0];		
+		String inputFile = args[0];
+		System.out.println("Processing: " + inputFile);
 		int totalSentences = 0;
 		int correctSentences = 0;
 		int totalTokens = 0;
@@ -45,8 +49,8 @@ public class Evaluate {
 					prevEmptyLine=false;
 				}
 				String[] splitted = line.split("\\s+");
-				String gold = splitted[splitted.length-2].toLowerCase();
-				String pred = splitted[splitted.length-1].toLowerCase();
+				String gold = splitted[GOLD_COL-1].toLowerCase();
+				String pred = splitted[PRED_COL-1].toLowerCase();
 				//sentence level accuracy
 				if(!gold.equals(pred)) {
 					currentSentenceHasError = true;
