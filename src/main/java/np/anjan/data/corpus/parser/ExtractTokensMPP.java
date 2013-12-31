@@ -13,7 +13,7 @@ import java.util.Stack;
 import np.anjan.config.Config;
 
 public class ExtractTokensMPP {
-	public static boolean includePosLabel = true;
+	public static boolean includePosLabel = false;
 	public static void main(String[] args) throws IOException {
 		String outFile = Config.FOLDER_PROCESSED_POS_DATA + "clean_corpus.new";
 		Date startTime = new Date();

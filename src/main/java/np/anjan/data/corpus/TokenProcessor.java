@@ -5,8 +5,12 @@ import java.util.regex.Pattern;
 
 public class TokenProcessor {
 	public static String getSmoothedWord(String queryWord) {
+		//for nepali numbers: convert them to english
 		//String word = queryWord.toLowerCase();
 		String word = queryWord;
+		for(int i = 0; i <= 9; i++) {
+			  word = word.replace("" + (char)(0x966+i), "" + i);
+		}
 		//try to match date
 		Pattern p0 = Pattern.compile("[0-9]{4}"); //possible dates
 		

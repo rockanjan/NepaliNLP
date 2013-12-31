@@ -15,6 +15,7 @@ public class CleanCorpus {
 		if(args.length != 2) {
 			System.err.println("Usage: <program> inFile outFile");
 			System.exit(-1);
+			
 		}
 		/*****First, fix tokenization****/
 		String inFile = args[0];
@@ -60,6 +61,27 @@ public class CleanCorpus {
 			//found by finding words of length greater than 50
 			if(line.contains("मबचथ") 
 					//|| line.contains("त्जभ")
+					|| line.contains(" ब् ")
+					|| line.contains(" ाचय्क ")
+					|| line.contains(" व ")
+					|| line.contains(" ि ")
+					|| line.contains(" ू ")
+					|| line.contains("ह ँ ुदो")
+					|| line.contains(" ष्ल ")
+					|| line.contains(" � ")
+					|| line.contains(" सां ")
+					|| line.contains(" स् ")
+					|| line.contains("ध प म ग")
+					|| line.contains("नि ध नि पध")
+					|| line.contains("प ध ध")
+					|| line.contains("प प प प")
+					|| line.contains("म म म")
+					|| line.contains("सा रे ग ")
+					|| line.contains("डडण्द्")
+					|| line.contains("ब्चष्भ")
+					|| line.contains("ब्त्कयक")
+					|| line.contains("क्बनष्तत")
+					|| line.contains("ढटण्स")
 					|| line.contains("टछछघघ")
 					|| line.contains("उबचकभ")
 					//|| line.contains("बनबज")

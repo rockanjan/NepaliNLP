@@ -26,60 +26,62 @@ public class MergeTextWithAnnotation {
 
 	public static void main(String[] args) throws NumberFormatException,
 			IOException {
-		String commonFilePrefix = "/var/www/brat/data/nepali_ner/test/xaa";
-		String annFile = commonFilePrefix + ".ann";
-		String txtFile = commonFilePrefix + ".txt";
-		String outFile = txtFile + ".mrg";
-		List<NerAnnotation> annotationList = getAnnotationList(annFile);
-		PrintWriter pw = new PrintWriter(new OutputStreamWriter(
-				new FileOutputStream(outFile), "UTF-8"));
-
-		Reader txtReader = new InputStreamReader(new FileInputStream(txtFile),
-				"UTF-8");
-		Reader br = new BufferedReader(txtReader);
-		int r;
-
-		NerAnnotation currentAnnotation = null;
-		boolean beginning = false; // if the active annotation is beginning or
-									// inside (continuing)
-		int index = -1;
-		while ((r = br.read()) != -1) {
-			index++;
-			if(currentAnnotation == null && annotationList.size() > 0) {
-				if(annotationList.get(0).startIndex == index) {
-					currentAnnotation = annotationList.remove(0);
-					beginning = true;
-				}
-			}
-			char ch = (char) r;
-			if (ch != '\n') {
-				pw.print(ch);
-			} else {
-				pw.print(" ");
-			}
-			if (ch == ' ' || ch == '\n') {
-				if(currentAnnotation != null) {
-					if (beginning) {
-						pw.println("B-"
-								+ annotationMap.get(currentAnnotation.tagType));
-					} else {
-						pw.println("I-"
-								+ annotationMap.get(currentAnnotation.tagType));
+		for(char i='a'; i<='j'; i++) {
+			String commonFilePrefix = "/var/www/brat/data/nepali_ner_3/xa" + i;
+			String annFile = commonFilePrefix + ".ann";
+			String txtFile = commonFilePrefix + ".txt";
+			String outFile = txtFile + ".mrg";
+			List<NerAnnotation> annotationList = getAnnotationList(annFile);
+			PrintWriter pw = new PrintWriter(new OutputStreamWriter(
+					new FileOutputStream(outFile), "UTF-8"));
+	
+			Reader txtReader = new InputStreamReader(new FileInputStream(txtFile),
+					"UTF-8");
+			Reader br = new BufferedReader(txtReader);
+			int r;
+	
+			NerAnnotation currentAnnotation = null;
+			boolean beginning = false; // if the active annotation is beginning or
+										// inside (continuing)
+			int index = -1;
+			while ((r = br.read()) != -1) {
+				index++;
+				if(currentAnnotation == null && annotationList.size() > 0) {
+					if(annotationList.get(0).startIndex == index) {
+						currentAnnotation = annotationList.remove(0);
+						beginning = true;
 					}
-					beginning = false;
+				}
+				char ch = (char) r;
+				if (ch != '\n') {
+					pw.print(ch);
 				} else {
-					pw.println("O");
+					pw.print(" ");
+				}
+				if (ch == ' ' || ch == '\n') {
+					if(currentAnnotation != null) {
+						if (beginning) {
+							pw.println("B-"
+									+ annotationMap.get(currentAnnotation.tagType));
+						} else {
+							pw.println("I-"
+									+ annotationMap.get(currentAnnotation.tagType));
+						}
+						beginning = false;
+					} else {
+						pw.println("O");
+					}
+				}
+				if(currentAnnotation != null && currentAnnotation.endIndex == index) {
+					currentAnnotation = null;
+				}
+				if (ch == '\n') {
+					pw.println();
 				}
 			}
-			if(currentAnnotation != null && currentAnnotation.endIndex == index) {
-				currentAnnotation = null;
-			}
-			if (ch == '\n') {
-				pw.println();
-			}
+			br.close();
+			pw.close();
 		}
-		br.close();
-		pw.close();
 	}
 
 	public static List<NerAnnotation> getAnnotationList(String filename)
