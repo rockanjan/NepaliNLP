@@ -20,17 +20,20 @@ public class Stats {
 	static List<String> tagList; //index to tagname
 	static Map<String, Integer> tagNameToIndex;
 	public static void main(String[] args) throws IOException {
-		String file1 = "/home/anjan/work/ner/nepali/baseline/wsjcombined.mrg";
-		String file2 = "/home/anjan/work/ner/nepali/baseline/nercombined.mrg.200";
+		String file1 = "/home/anjan/work/nepali/nerwsj/brown200/process/wsjcombined.mrg.brown";
+		String file2 = "/home/anjan/work/nepali/nerwsj/brown200/process/nercombined.mrg.rem.brown";
+		
+		//compareExactEntityMatches(file1, file2);
 		
 		System.out.println("NOTE: Excluding tags O");
 		populateTagList(file1);
 		populateTagList(file2); //appends if new tags are found
+		
+		
 		System.out.println("Total Unique Tags = " + tagList.size());
 		
 		Map<String, Tags> wordToTag1 = getWordTagMap(file1); 
 		Map<String, Tags> wordToTag2 = getWordTagMap(file2);
-		
 		
 		//check the stats
 		int total = wordToTag2.size();
@@ -43,6 +46,7 @@ public class Stats {
 		Map<String, Integer> foundMap = new HashMap<String, Integer>();
 		
 		List<String> tagMatchWords = new ArrayList<String>();
+		List<String> tagNotMatchWords = new ArrayList<String>();
 		for(String word : wordToTag2.keySet()) {
 			if(! wordToTag1.containsKey(word)) {
 				notFound++;
@@ -64,6 +68,8 @@ public class Stats {
 				if(hasUniqueTag) {
 					if(tags1.getUniqueIndex() == tags2.getUniqueIndex()) {
 						tagMatchWords.add(word);
+					} else {
+						tagNotMatchWords.add(word);
 					}
 				}
 			}
@@ -73,12 +79,19 @@ public class Stats {
 		System.out.println("unique count of not found = " + notFoundMap.size());
 		System.out.println("unique count of found = " + foundMap.size());
 		System.out.println("word and tag matching without confusion = " + tagMatchWords.size());
+		/*
 		if(tagMatchWords.size() > 0) {
 			System.out.println("List of words whose tags match in both corpus");
 			for(String word : tagMatchWords) {
 				System.out.println(word);
 			}
 		}
+		*/
+		System.out.println("List of words whose tags DO NOT match in both corpus");
+		for(String word : tagNotMatchWords) {
+			System.out.println(word);
+		}
+	
 	}
 	
 	public static void populateTagList(String filename) throws IOException{
@@ -119,7 +132,7 @@ public class Stats {
 			line = line.trim();
 			if(line.isEmpty()) continue;
 			String[] splitted = line.split("\\s+");
-			String word = splitted[0];
+			String word = splitted[2];
 			String tag = splitted[1];
 			if(tag.equals("O")) continue;
 			int tagIndex = tagNameToIndex.get(tag);
@@ -133,6 +146,183 @@ public class Stats {
 		}
 		br.close();
 		return result;
+	}
+	
+	public static void compareExactEntityMatches(String file1, String file2) throws IOException {
+		Reader txtReader1 = new InputStreamReader(new FileInputStream(file1),"UTF-8");
+		BufferedReader br1 = new BufferedReader(txtReader1);
+		TreeSet<String> perList = new TreeSet<String>();
+		TreeSet<String> orgList = new TreeSet<String>();
+		TreeSet<String> locList = new TreeSet<String>();
+		String line;
+		boolean cont = false;
+		String type = null;
+		StringBuffer entity = null;
+		int totalFound1 = 0;
+		while ((line = br1.readLine()) != null) {
+			line = line.trim();
+			if(line.isEmpty()) {
+				if(cont) {
+					totalFound1++;
+					if(type.equals("PER")) {
+						perList.add(entity.toString());
+					} else if(type.equals("ORG")) {
+						orgList.add(entity.toString());
+					} else if(type.equals("LOC")) {
+						locList.add(entity.toString());
+					}
+				}
+				cont = false;
+				entity = null;
+			}
+			String[] splitted = line.split("\\s+");
+			String tag = splitted[splitted.length-1];
+			String word = splitted[0];
+			if(tag.startsWith("B")) {
+				if(cont) {
+					totalFound1++;
+					if(type.equals("PER")) {
+						perList.add(entity.toString());
+					} else if(type.equals("ORG")) {
+						orgList.add(entity.toString());
+					} else if(type.equals("LOC")) {
+						locList.add(entity.toString());
+					}
+				}
+				cont = true;
+				entity = new StringBuffer();
+				entity.append(word);
+				type = tag.substring(2);
+			} else if(tag.startsWith("I")) {
+				entity.append(" " + word);
+			} else if(tag.equals("O")) {
+				if(cont) {
+					totalFound1++;
+					if(type.equals("PER")) {
+						perList.add(entity.toString());
+					} else if(type.equals("ORG")) {
+						orgList.add(entity.toString());
+					} else if(type.equals("LOC")) {
+						locList.add(entity.toString());
+					}
+				}
+				cont = false;
+				entity = null;
+			}
+		}
+		br1.close();
+		
+		Reader txtReader2 = new InputStreamReader(new FileInputStream(file2),"UTF-8");
+		BufferedReader br2 = new BufferedReader(txtReader2);
+		line = null ;
+		cont = false;
+		type = null;
+		entity = null;
+		int perMatchCount = 0;
+		int locMatchCount = 0;
+		int orgMatchCount = 0;
+		int totalFound2 = 0;
+		int perFound = 0;
+		int locFound = 0;
+		int orgFound = 0;
+		while ((line = br2.readLine()) != null) {
+			line = line.trim();
+			if(line.isEmpty()) {
+				if(cont) {
+					totalFound2++;
+					if(type.equals("PER")) {
+						perFound++;
+						if(perList.contains(entity.toString())) {
+							perMatchCount++;
+							System.out.println("Matched as PER : " + entity.toString());
+						}
+					} else if(type.equals("ORG")) {
+						orgFound++;
+						if(orgList.contains(entity.toString())) {
+							orgMatchCount++;
+							System.out.println("Matched as ORG : " + entity.toString());
+						}
+					} else if(type.equals("LOC")) {
+						locFound++;
+						if(locList.contains(entity.toString())) {
+							locMatchCount++;
+							System.out.println("Matched as LOC : " + entity.toString());
+						}
+					}
+				}
+				cont = false;
+				entity = null;
+			}
+			String[] splitted = line.split("\\s+");
+			String tag = splitted[splitted.length-1];
+			String word = splitted[0];
+			if(tag.startsWith("B")) {
+				if(cont) {
+					totalFound2++;
+					if(type.equals("PER")) {
+						perFound++;
+						if(perList.contains(entity.toString())) {
+							perMatchCount++;
+							System.out.println("Matched as PER : " + entity.toString());
+						}
+					} else if(type.equals("ORG")) {
+						orgFound++;
+						if(orgList.contains(entity.toString())) {
+							orgMatchCount++;
+							System.out.println("Matched as ORG : " + entity.toString());
+						}
+					} else if(type.equals("LOC")) {
+						locFound++;
+						if(locList.contains(entity.toString())) {
+							locMatchCount++;
+							System.out.println("Matched as LOC : " + entity.toString());
+						}
+					}
+				}
+				cont = true;
+				entity = new StringBuffer();
+				entity.append(word);
+				type = tag.substring(2);
+			} else if(tag.startsWith("I")) {
+				entity.append(" " + word);
+			} else if(tag.equals("O")) {
+				if(cont) {
+					totalFound2++;
+					if(type.equals("PER")) {
+						perFound++;
+						if(perList.contains(entity.toString())) {
+							perMatchCount++;
+							System.out.println("Matched as PER : " + entity.toString());
+						}
+					} else if(type.equals("ORG")) {
+						orgFound++;
+						if(orgList.contains(entity.toString())) {
+							orgMatchCount++;
+							System.out.println("Matched as ORG : " + entity.toString());
+						}
+					} else if(type.equals("LOC")) {
+						locFound++;
+						if(locList.contains(entity.toString())) {
+							locMatchCount++;
+							System.out.println("Matched as LOC : " + entity.toString());
+						}
+					}
+				}
+				cont = false;
+				entity = null;
+			}
+		}
+		br2.close();
+		//print the stats
+		System.out.println("Total entities found in 1: " + totalFound1);
+		System.out.println("Total PER entities found in 1: " + perList.size());
+		System.out.println("Total ORG entities found in 1: " + orgList.size());
+		System.out.println("Total LOC entities found in 1: " + locList.size());
+		System.out.println("Total entities found in 2: " + totalFound2);
+		System.out.println("Total PER entities found in 2: " + perFound);
+		System.out.println("Total ORG entities found in 2: " + orgFound);
+		System.out.println("Total LOC entities found in 2: " + locFound);
+		System.out.format("Exact Match counts PER=%d, ORG=%d, LOC=%d\n", perMatchCount, orgMatchCount, locMatchCount);
 	}
 	
 	private static class Tags {
@@ -166,8 +356,6 @@ public class Stats {
 				}
 			}
 			return index;
-		}
-	
-	
+		}	
 	}
 }

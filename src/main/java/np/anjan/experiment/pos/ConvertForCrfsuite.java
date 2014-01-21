@@ -9,7 +9,7 @@ import java.io.PrintWriter;
 
 public class ConvertForCrfsuite {
 	public static void main(String[] args) throws IOException {
-		String inFile = "/home/anjan/work/nepali/pos/baseline/test.txt";
+		String inFile = "/home/anjan/work/nepali/pos/hmm25/test.txt";
 		String outFile = inFile + ".crfsuite";
 		PrintWriter pw = new PrintWriter(new OutputStreamWriter(new FileOutputStream(outFile), "UTF-8"));
 		String splitDelim = "\\s+";
@@ -35,30 +35,34 @@ public class ConvertForCrfsuite {
 	    		String[] tokens = tokenLine.split(splitDelim);
 	    		String word = tokens[0];
 	    		String tag = tokens[1];
-	    		String state = null;
+	    		String[] rep = null;
 	    		if(tokens.length > 2) {
-	    			state = tokens[2];
+	    			int repLength = tokens.length - 2;
+	    			rep = new String[repLength];
+	    			for(int d=0; d<repLength; d++) {
+	    				rep[d] = tokens[d+2];
+	    			}
 	    		}
 	    		StringBuffer features = new StringBuffer();
-	    		//additional features, contains number and contains hyphen
 	    		String smoothedWord = TokenProcessorNepali.getSmoothedWord(word);
-	    		
-	    		//features.append(tag + "\t" + word);
 	    		features.append(tag + "\t" + smoothedWord);
 	    		
-	    		if(state != null) {
-	    			features.append("\t" + state);
-	    			for(int i=1; i<=2; i++) {
-	    				if(p >= i) {
-		    				features.append("\t" + "rep_-" + i + "=" + tokenLines[p-i].split(splitDelim)[2] + "\t");
-		    			}	
-	    			}
-	    			for(int i=1; i<=2; i++) {
-	    				if(p <= tokenLines.length-i-1) {
-		    				features.append("\t" + "rep_+" + i + "=" + tokenLines[p+i].split(splitDelim)[2] + "\t");
-		    			}	
+	    		if(rep != null) {
+	    			for(int d=0; d<rep.length; d++) {
+	    				features.append("\t" + "rep_" + d + "=" + rep[d]);
+		    			for(int i=1; i<=1; i++) {
+		    				if(p >= i) {
+			    				features.append("\t" + "rep_" + d + "-" + i + "=" + tokenLines[p-i].split(splitDelim)[2+d] + "\t");
+			    			}	
+		    			}
+		    			for(int i=1; i<=1; i++) {
+		    				if(p <= tokenLines.length-i-1) {
+			    				features.append("\t" + "rep_" + d + "+" + i + "=" + tokenLines[p+i].split(splitDelim)[2+d] + "\t");
+			    			}	
+		    			}
 	    			}
 	    		}
+	    		
 	    		//prev, next words
 	    		for(int i=1; i<=2; i++) {
 	    			if(p >= i) {

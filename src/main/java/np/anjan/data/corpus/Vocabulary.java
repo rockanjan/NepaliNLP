@@ -20,9 +20,9 @@ import java.util.Map;
 
 public class Vocabulary {
 	public static boolean debug = false;
-	public static boolean smooth = true;
-	public static boolean lower = true;
-	public int vocabThreshold = 10;
+	public static boolean smooth = false;
+	public static boolean lower = false;
+	public int vocabThreshold = 0;
 	//index zero reserved for *unk* (low freq features)
 	public int vocabReadIndex = 0;
 	public int vocabSize = 0;
@@ -33,8 +33,8 @@ public class Vocabulary {
 	
 	public static void main(String[] args) throws IOException {
 		boolean WPL = false; //word per line or sentence per line?
-		String folder = "/data/nepalicorpus/processed/mpp/";
-		Reader in = new InputStreamReader(new FileInputStream(folder + "corpus_clean.processed.txt.cleaned.fixed"), "UTF-8");
+		String folder = "/home/anjan/work/nepali/nerwsj/brown200/process/compare_cluster_distribution/";
+		Reader in = new InputStreamReader(new FileInputStream(folder + "wsj.brown.SPL"), "UTF-8");
 		BufferedReader br = new BufferedReader(in);
 		String line = "";
 		Vocabulary v = new Vocabulary();
@@ -66,7 +66,7 @@ public class Vocabulary {
 		System.out.println("Vocab size before reduction : " + v.vocabSize);
 		v.reduceVocab();
 		System.out.println("Vocab size after reduction : " + v.vocabSize);
-		v.writeDictionary(folder + "vocab.txt.thres" + v.vocabThreshold);
+		v.writeDictionary(folder + "vocab.txt.thres" + v.vocabThreshold + ".nosmooth");
 		br.close();
 	}
 	

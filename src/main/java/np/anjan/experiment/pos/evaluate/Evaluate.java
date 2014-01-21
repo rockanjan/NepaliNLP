@@ -2,32 +2,31 @@ package np.anjan.experiment.pos.evaluate;
 
 import java.io.BufferedReader;
 import java.io.FileInputStream;
-import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.io.Reader;
-import java.io.UnsupportedEncodingException;
 import java.util.ArrayList;
 import java.util.Collections;
-import java.util.HashMap;
-import java.util.HashSet;
 import java.util.List;
-import java.util.Map;
-import java.util.Set;
+
+import np.anjan.data.corpus.TokenProcessor;
+import np.anjan.data.corpus.Vocabulary;
 
 public class Evaluate {
 	public static void main(String[] args) throws IOException {
-		int GOLD_COL = 3; //third col
-		int PRED_COL = 2; //third col
+		boolean smooth = true;
 		
-		int UNKNOWN_COL = 1; //first column
-		String UNKNOWN = "0";
-		//input file with last column pred and second to last gold tags
-		if(args.length != 1) {
-			System.err.println("Usage: <program> goldPredFile");
-			System.exit(-1);
+		
+		Vocabulary v = new Vocabulary();
+		if(smooth) {
+			v.readDictionary("/home/anjan/work/nepali/pos/vocab.txt.thres0"); //test has only lowercase characters
+		} else {
+			v.readDictionary("/home/anjan/work/nepali/pos/vocab.txt.thres0.nosmooth"); //test has only lowercase characters
 		}
-		String inputFile = args[0];
+		String inputFile = "/home/anjan/work/nepali/pos/hmm25/result/test.rep.c2=0.2";
+		//String inputFile = "/home/anjan/work/nepali/pos/baseline/result/test.baseline.c2=0.2"; //baseline
+		
+		
 		System.out.println("Processing: " + inputFile);
 		int totalSentences = 0;
 		int correctSentences = 0;
@@ -49,20 +48,27 @@ public class Evaluate {
 					prevEmptyLine=false;
 				}
 				String[] splitted = line.split("\\s+");
-				String gold = splitted[GOLD_COL-1].toLowerCase();
-				String pred = splitted[PRED_COL-1].toLowerCase();
+				String gold = splitted[splitted.length - 2].toLowerCase();
+				String pred = splitted[splitted.length - 1].toLowerCase();
 				//sentence level accuracy
 				if(!gold.equals(pred)) {
 					currentSentenceHasError = true;
 				}
-				//unknown
-				if(splitted.length > 2) {
-					if(splitted[UNKNOWN_COL-1].equals(UNKNOWN)) {
-						totalUnknown++;
-						if(gold.equals(pred)) {
-							correctUnknown++;
-						}
-					}
+				String word = splitted[0];
+				String smoothedWord = null;
+				if(smooth) {
+					smoothedWord = TokenProcessor.getSmoothedWord(word);
+				}
+				else {
+					smoothedWord = word;
+				}
+				int vocabIndex = v.getIndex(smoothedWord);
+				
+				if(vocabIndex == 0) {
+					totalUnknown++;
+					if(gold.equals(pred)) {
+						correctUnknown++;
+					}					
 				}
 				//all
 				Confusion c = new Confusion(gold, pred);
